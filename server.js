@@ -503,8 +503,16 @@ app.get('/', (req, res) => {
   res.redirect('/auth.html');
 });
 
-// отдаём статику из папки 1 (твой index (1) (1).html)
+// отдаём статику из текущей директории (где находится server.js)
 app.use(express.static(__dirname));
+
+// Логирование для отладки (только в development)
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    console.log(`📄 Запрос: ${req.method} ${req.path}`);
+    next();
+  });
+}
 
 // Инициализация главного администратора
 async function initializeMainAdmin() {
@@ -571,10 +579,21 @@ async function initializeMainAdmin() {
 
 // Инициализируем главного админа перед запуском сервера
 initializeMainAdmin().then(() => {
+  // Проверяем наличие основных файлов
+  const requiredFiles = ['auth.html', 'companies.html', 'admin.html', 'implementation_schedule.html'];
+  const missingFiles = requiredFiles.filter(file => !fs.existsSync(path.join(__dirname, file)));
+  
+  if (missingFiles.length > 0) {
+    console.warn(`⚠️  Предупреждение: не найдены файлы: ${missingFiles.join(', ')}`);
+    console.log(`📁 Текущая директория: ${__dirname}`);
+    console.log(`📁 Содержимое директории:`, fs.readdirSync(__dirname).join(', '));
+  }
+  
   // Обработка ошибок при запуске
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Сервер диаграммы Ганта запущен на порту ${PORT}`);
     console.log(`📁 Данные сохраняются в: ${__dirname}`);
+    console.log(`📁 Содержимое директории:`, fs.readdirSync(__dirname).filter(f => !f.startsWith('.') && f !== 'node_modules').join(', '));
     console.log(`\n📋 Доступные страницы:`);
     console.log(`   • Авторизация: http://localhost:${PORT}/auth.html`);
     console.log(`   • Админ-панель: http://localhost:${PORT}/admin.html`);
