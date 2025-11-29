@@ -151,15 +151,23 @@ app.post('/api/gantt-state', (req, res) => {
   try {
     const companyId = req.query.company || req.body.company;
     if (!companyId || !isValidCompanyId(companyId)) {
+      console.error('❌ Ошибка: не указан или неверный ID компании:', companyId);
       return res.status(400).json({ ok: false, error: 'Не указан или неверный ID компании' });
     }
 
     const dataFile = getCompanyDataFile(companyId);
+    console.log('💾 Сохранение графика для компании:', companyId);
+    console.log('📁 Путь к файлу:', dataFile);
+    console.log('📦 Размер данных:', JSON.stringify(req.body).length, 'байт');
+    
     fs.writeFileSync(dataFile, JSON.stringify(req.body, null, 2), 'utf8');
+    console.log('✅ График успешно сохранен в файл:', dataFile);
+    
     res.json({ ok: true });
   } catch (e) {
-    console.error('Ошибка сохранения gantt-state:', e);
-    res.status(500).json({ ok: false, error: 'save_failed' });
+    console.error('❌ Ошибка сохранения gantt-state:', e);
+    console.error('Стек ошибки:', e.stack);
+    res.status(500).json({ ok: false, error: 'save_failed', message: e.message });
   }
 });
 

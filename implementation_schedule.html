@@ -152,15 +152,31 @@
             border-radius: 50%;
         }
 
+        /* Подсказка для кнопки профиля (черный фон, как у редактирования этапов) */
         .profile-btn::after {
-            content: '';
+            content: attr(data-tooltip);
             position: absolute;
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-            bottom: 8px;
-            right: 8px;
+            bottom: 100%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            transform-origin: bottom center;
+            margin-bottom: 8px;
+            z-index: 1001;
+        }
+
+        .profile-btn:hover::after {
+            opacity: 1;
+            transform: translate(-50%, -6px);
+            transition-delay: 1s;
         }
 
         /* Кнопка выхода к выбору компаний */
@@ -196,15 +212,31 @@
             position: relative;
         }
 
+        /* Подсказка для кнопки компаний (черный фон, как у редактирования этапов) */
         .companies-btn::after {
-            content: '';
+            content: attr(data-tooltip);
             position: absolute;
-            width: 6px;
-            height: 6px;
-            background: white;
-            border-radius: 50%;
-            top: 4px;
-            left: 4px;
+            bottom: 100%;
+            left: 50%;
+            transform: translate(-50%, 0);
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            transform-origin: bottom center;
+            margin-bottom: 8px;
+            z-index: 1001;
+        }
+
+        .companies-btn:hover::after {
+            opacity: 1;
+            transform: translate(-50%, -6px);
+            transition-delay: 1s;
         }
 
         /* Кнопка выхода */
@@ -243,11 +275,11 @@
             right: 2px;
         }
 
-        /* Подсказка для кнопки выхода (как у редактирования этапов) */
+        /* Подсказка для кнопки выхода (черный фон, раскрывается ВНИЗ) */
         .logout-btn::after {
             content: attr(data-tooltip);
             position: absolute;
-            bottom: 100%;
+            top: 100%;
             left: 50%;
             transform: translate(-50%, 0);
             padding: 4px 8px;
@@ -259,13 +291,14 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s ease, transform 0.2s ease;
-            transform-origin: bottom center;
-            margin-bottom: 8px;
+            transform-origin: top center;
+            margin-top: 8px;
+            z-index: 1001;
         }
 
         .logout-btn:hover::after {
             opacity: 1;
-            transform: translate(-50%, -6px);
+            transform: translate(-50%, 6px);
             transition-delay: 1s;
         }
 
@@ -902,11 +935,11 @@
             position: relative;
         }
         
-        /* Блокировка кнопки "Сбросить план" в режиме просмотра */
+        /* Блокировка кнопки "Сбросить план" в режиме просмотра (только визуальная, кнопка видна) */
         .reset-plan-btn.view-mode-disabled {
-            opacity: 0.5;
+            opacity: 1;
             cursor: not-allowed;
-            pointer-events: none;
+            pointer-events: auto; /* Разрешаем клики, но функция canEdit() заблокирует действие */
         }
 
         .reset-plan-btn::after {
@@ -2504,8 +2537,12 @@
     <div class="container">
         <header>
             <button class="logout-btn" id="logoutBtn" data-tooltip="Выход" style="display: none;" onclick="logout()"></button>
-            <button class="companies-btn" id="companiesBtn" title="Выбор компании" style="display: none;" onclick="goToCompanies()"></button>
-            <button class="profile-btn" id="profileBtn" title="Редактировать профиль" style="display: none;"></button>
+            <button class="companies-btn" id="companiesBtn" data-tooltip="Выбор компании" style="display: none;" onclick="goToCompanies()">
+                <span style="position: absolute; width: 6px; height: 6px; background: white; border-radius: 50%; top: 4px; left: 4px; z-index: 1;"></span>
+            </button>
+            <button class="profile-btn" id="profileBtn" data-tooltip="Редактировать профиль" style="display: none;">
+                <span style="position: absolute; width: 8px; height: 8px; background: white; border-radius: 50%; bottom: 8px; right: 8px; z-index: 1;"></span>
+            </button>
             <h1>
                 <span class="header-icon"></span>
                 <span>График внедрения и обучения системы ICONA</span>
@@ -2549,14 +2586,6 @@
         </div>
 
         <div class="controls">
-            <button class="btn btn-primary" onclick="openPDFExportModal()">
-                <span class="btn-icon btn-icon-pdf"></span>
-                <span>Выгрузить в PDF</span>
-            </button>
-            <button class="btn btn-primary" onclick="openExcelExportModal()">
-                <span class="btn-icon btn-icon-excel"></span>
-                <span>Выгрузить в Excel</span>
-            </button>
             <button class="btn btn-secondary view-toggle-btn" onclick="toggleView()">
                 <span class="btn-icon btn-icon-toggle"></span>
                 <span class="view-toggle-label">
@@ -2564,6 +2593,14 @@
                     <span class="view-toggle-separator">/</span>
                     <span class="view-toggle-part view-toggle-table">Таблица</span>
                 </span>
+            </button>
+            <button class="btn btn-primary" onclick="openPDFExportModal()">
+                <span class="btn-icon btn-icon-pdf"></span>
+                <span>Выгрузить в PDF</span>
+            </button>
+            <button class="btn btn-primary" onclick="openExcelExportModal()">
+                <span class="btn-icon btn-icon-excel"></span>
+                <span>Выгрузить в Excel</span>
             </button>
             <button class="btn btn-secondary reset-plan-btn" onclick="resetSchedule()" data-tooltip="Сбросить все даты до дефолтных значений">
                 <span class="btn-icon btn-icon-reset"></span>
@@ -2918,10 +2955,27 @@
             return urlParams.get('company') || localStorage.getItem('gantt-company') || null;
         }
 
-        const currentCompany = getCompanyFromURL();
+        let currentCompany = getCompanyFromURL();
         if (currentCompany) {
             localStorage.setItem('gantt-company', currentCompany);
+            console.log('🏢 Текущая компания:', currentCompany);
+        } else {
+            console.warn('⚠️ Компания не определена из URL или localStorage');
         }
+        
+        // Принудительное сохранение при уходе со страницы
+        window.addEventListener('beforeunload', function() {
+            if (currentCompany && !isViewMode) {
+                // Сбрасываем таймер и сохраняем сразу
+                if (saveTimeout) {
+                    clearTimeout(saveTimeout);
+                }
+                // Синхронное сохранение не работает в beforeunload, но попробуем
+                saveFullGanttState().catch(e => {
+                    console.error('Ошибка сохранения при уходе:', e);
+                });
+            }
+        });
 
         // ========== РЕЖИМ ДОСТУПА ==========
         // Проверяем режим из localStorage (edit или view)
@@ -3697,23 +3751,31 @@
         async function saveFullGanttState() {
             try {
                 if (!currentCompany) {
-                    console.warn('Компания не указана, сохранение пропущено');
+                    console.warn('⚠️ Компания не указана, сохранение пропущено. currentCompany:', currentCompany);
                     return;
                 }
                 const snapshot = createFullGanttSnapshot();
                 const companyParam = `?company=${currentCompany}`;
+                console.log('💾 Сохранение графика для компании:', currentCompany);
+                console.log('📦 Размер данных:', JSON.stringify(snapshot).length, 'байт');
+                
                 const response = await fetch(`/api/gantt-state${companyParam}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(snapshot)
                 });
+                
+                const responseData = await response.json();
+                
                 if (response.ok) {
-                    console.log('✅ Полное состояние графика сохранено');
+                    console.log('✅ Полное состояние графика сохранено успешно');
                 } else {
-                    console.warn('⚠️ Не удалось сохранить полное состояние графика');
+                    console.error('❌ Ошибка сохранения графика:', response.status, responseData);
+                    alert('Не удалось сохранить изменения. Проверьте консоль браузера для деталей.');
                 }
             } catch (e) {
-                console.warn('Не удалось сохранить полное состояние графика на сервере:', e);
+                console.error('❌ Ошибка при сохранении графика на сервере:', e);
+                alert('Ошибка сохранения: ' + e.message);
             }
         }
 
